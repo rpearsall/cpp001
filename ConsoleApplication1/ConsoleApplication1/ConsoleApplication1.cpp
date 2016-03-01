@@ -15,7 +15,7 @@ using namespace std;
 // functions for strings
 
 bool blnTestForMatch(char * a, char * pattern) {
-
+	
 	if (strstr(a, pattern) != NULL)
 		return(true);
 	else
@@ -83,56 +83,65 @@ public:
 	}IPTallyEntry;
 
 
-	// implement functions needed....
-
-	string GetIPTallyEntryAsString(const IPTallyEntry * x);
-
-	IPTallyEntry * GetIPTallyEntry(){
-		return &IPx;
-	}
-
-	void PutIPTallyEntry(int t, int f1, int f2, int f3, int f4){
-		IPx.count = t;
-		IPx.ip[0] = f1;
-		IPx.ip[1] = f2;
-		IPx.ip[2] = f3;
-		IPx.ip[3] = f4;
-	}
-
-private:
-
-	string IPstringx;
-	IPTallyEntry IPx;
-
 };
 
-class SortedIPP : SortedIP{
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// working on alternate, simpler implementation...
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+class IPEntry {
 
 public:
 
-	typedef  IPTallyEntry* IPTEP;
-	IPTEP xptr;
+	void GetIPEntryData(int &t, int &f1, int &f2, int &f3, int &f4){
+		t = data.count;
+		f1 = data.ip[0];
+		f2 = data.ip[1];
+		f3 = data.ip[2];
+		f4 = data.ip[3];
+	}
+
+	void PutIPEntryData(const int t, const int f1, const int f2, const int f3, const int f4){
+		data.count = t;
+		data.ip[0] = f1;
+		data.ip[1] = f2;
+		data.ip[2] = f3;
+		data.ip[3] = f4;
+	}
 
 	// define sort operators
-	friend inline bool operator< (const SortedIPP lhs, const SortedIPP rhs){
-		if (lhs.xptr->count < rhs.xptr->count) return true;
-		else if (lhs.xptr->count == rhs.xptr->count && lhs.xptr->ip[0] < rhs.xptr->ip[0]) return true;
-		else if (lhs.xptr->count == rhs.xptr->count && lhs.xptr->ip[0] == rhs.xptr->ip[0] && lhs.xptr->ip[1] < rhs.xptr->ip[1]) return true;
-		else if (lhs.xptr->count == rhs.xptr->count && lhs.xptr->ip[0] == rhs.xptr->ip[0] && lhs.xptr->ip[1] == rhs.xptr->ip[1] && lhs.xptr->ip[2] < rhs.xptr->ip[2]) return true;
-		else if (lhs.xptr->count == rhs.xptr->count && lhs.xptr->ip[0] == rhs.xptr->ip[0] && lhs.xptr->ip[1] == rhs.xptr->ip[1] && lhs.xptr->ip[2] == rhs.xptr->ip[2] && lhs.xptr->ip[3] < rhs.xptr->ip[3]) return true;
+	friend inline bool operator< (const IPEntry &lhs, const IPEntry &rhs){
+		if (lhs.data.count < rhs.data.count) return true;
+		else if (lhs.data.count == rhs.data.count && lhs.data.ip[0] < rhs.data.ip[0]) return true;
+		else if (lhs.data.count == rhs.data.count && lhs.data.ip[0] == rhs.data.ip[0] && lhs.data.ip[1] < rhs.data.ip[1]) return true;
+		else if (lhs.data.count == rhs.data.count && lhs.data.ip[0] == rhs.data.ip[0] && lhs.data.ip[1] == rhs.data.ip[1] && lhs.data.ip[2] < rhs.data.ip[2]) return true;
+		else if (lhs.data.count == rhs.data.count && lhs.data.ip[0] == rhs.data.ip[0] && lhs.data.ip[1] == rhs.data.ip[1] && lhs.data.ip[2] == rhs.data.ip[2] && lhs.data.ip[3] < rhs.data.ip[3]) return true;
 		else return false;
 	}
-	friend inline bool operator> (const SortedIPP lhs, const SortedIPP rhs){ return (rhs < lhs); }
-	friend inline bool operator<=(const SortedIPP lhs, const SortedIPP rhs){ return !(lhs > rhs); }
-	friend inline bool operator>=(const SortedIPP lhs, const SortedIPP rhs){ return !(lhs < rhs); }
+	friend inline bool operator> (const IPEntry lhs, const IPEntry rhs){ return (rhs < lhs); }
+	friend inline bool operator<=(const IPEntry lhs, const IPEntry rhs){ return !(lhs > rhs); }
+	friend inline bool operator>=(const IPEntry lhs, const IPEntry rhs){ return !(lhs < rhs); }
 
-	friend inline bool operator==(const SortedIPP lhs, const SortedIPP rhs){
-		if (lhs.xptr->count == rhs.xptr->count && lhs.xptr->ip[0] == rhs.xptr->ip[0] && lhs.xptr->ip[1] == rhs.xptr->ip[1] && lhs.xptr->ip[2] == rhs.xptr->ip[2] && lhs.xptr->ip[3] == rhs.xptr->ip[3]) return true;
+	friend inline bool operator==(const IPEntry lhs, const IPEntry rhs){
+		if (lhs.data.count == rhs.data.count && lhs.data.ip[0] == rhs.data.ip[0] && lhs.data.ip[1] == rhs.data.ip[1] && lhs.data.ip[2] == rhs.data.ip[2] && lhs.data.ip[3] == rhs.data.ip[3]) return true;
 		else return false;
 	}
-	friend inline bool operator!=(const SortedIPP lhs, const SortedIPP rhs){ return !(lhs == rhs); }
+	friend inline bool operator!=(const IPEntry lhs, const IPEntry rhs){ return !(lhs == rhs); }
+
+private:
+
+	SortedIP::IPTallyEntry data;
 
 };
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -142,7 +151,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	char last_ipaddr[16] = { "" };
 	int new_ip_ctr = 0;
 	int old_ip_ctr = 0;
-	bool test1;
 
 	// first stage is to read the large file, extract the port 80 GET IP addresses,
 	// exclude IP addresses starting with 207.114., eliminating all blank or non-GET log lines
@@ -169,39 +177,13 @@ int _tmain(int argc, _TCHAR* argv[])
 
 					if (!blnTestForStartMatch(ipaddr, target_ipexclude) && strlen(ipaddr) > 7){
 
-							if (strcmp(ipaddr, last_ipaddr) != 0){
-
-								old_ip_ctr = new_ip_ctr;
-								new_ip_ctr = 1;
-
-								if (strlen(last_ipaddr) > 0) {
-									myfile << old_ip_ctr;
-									myfile << " ";
-									//myfile << ", \"";
-									myfile << last_ipaddr;
-									//myfile << "\"";
-									myfile << endl;
-								}
-
-								strcpy_s(last_ipaddr, ipaddr);
-							}
-							else
-								new_ip_ctr++;
+						myfile << ipaddr << endl;
+					
 					}
-
+					
 			}
 		}
 
-		// write out last entry!!!
-
-				if (strlen(last_ipaddr) > 0) {
-					myfile << old_ip_ctr;
-					myfile << " ";
-					//myfile << ", \"";
-					myfile << last_ipaddr;
-					//myfile << "\"";
-					myfile << endl;
-				}
 
 		myfile.close();	
 		stream1.close();
@@ -222,25 +204,25 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		char *p1;
 		char cbuf1[40];
-		char *p2;
-		char cbuf2[40];
+		//char *p2;
+		//char cbuf2[40];
 		string s;
-		int x;
 
 		while (!stream1.eof())
 		{
 			stream1.getline(dataline, 100);
 			
 			strcpy_s(cbuf1, dataline);
-			strcpy_s(cbuf2, dataline);
+			//strcpy_s(cbuf2, dataline);
 
 			p1 = cptrGetChunk(1, cbuf1);
-			p2 = cptrGetChunk(2, cbuf2);
+			//p2 = cptrGetChunk(2, cbuf2);
 
-			if (p1 != nullptr && p2 != nullptr){
-				s = p2;
-				sscanf_s(p1, "%d", &x);
-				IPL[s] += x;			
+			if (p1 != nullptr /*&& p2 != nullptr*/){
+				s = p1;
+				//s = p2;
+				//sscanf_s(p1, "%d", &x);
+				IPL[s] ++;			
 			}
 
 		}
@@ -259,14 +241,19 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		cout << "Second pass done." << endl;
 
-		int tally, f1, f2, f3, f4;
-		tally = f1 = f2 = f3 = f4 = 0;
-		SortedIP * workentry;
-		list<SortedIP *> list4clean;
-		list<SortedIP *>::iterator list4cleaniter;
-		SortedIPP wep;
-		list<SortedIPP> mylist;
-		list<SortedIPP>::iterator iter;
+
+////////////////////////////////////////////////////////////////////////////////////
+
+		char * strptr1;
+		const char *delim = " .";
+		char *next_token;
+		
+		IPEntry qqq;
+		IPEntry &workentry = qqq;
+		list<IPEntry> mylist;
+		list<IPEntry>::iterator iter;
+
+////////////////////////////////////////////////////////////////////////////////////
 
 		// file q2.log is read and sorted per spec, and extruded file report.csv
 
@@ -278,14 +265,22 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		myfile.open("C:\\Users\\Bob\\Desktop\\developer-screening-quiz\\report.csv");
 
+
+////////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// trying new version with new class
+////////////////////////////////////////////////////////////////////////////////////
+
 		while (!stream1.eof())
-		{				
-			char * strptr1;
-			const char *delim = " .";
-			char *next_token;
-			
+		{
+			int tally, f1, f2, f3, f4;
+			tally = f1 = f2 = f3 = f4 = 0;
+			workentry.PutIPEntryData(tally, f1, f2, f3, f4);
+
 			stream1.getline(dataline, 100);
-			workentry = new SortedIP;
 
 			strptr1 = strtok_s(dataline, delim, &next_token);
 			if (strptr1 != nullptr)
@@ -306,41 +301,42 @@ int _tmain(int argc, _TCHAR* argv[])
 			strptr1 = strtok_s(NULL, delim, &next_token);
 			if (strptr1 != nullptr)
 				sscanf_s(strptr1, "%d", &f4);
-		
+
 			if (strptr1 != nullptr){
-				
-				workentry->PutIPTallyEntry(tally, f1, f2, f3, f4);
-				wep.xptr = workentry->GetIPTallyEntry();
-				mylist.push_back(wep);
-				list4clean.push_back(workentry);
+				workentry.PutIPEntryData(tally, f1, f2, f3, f4);
+				mylist.push_back(workentry);
 			}
-		}			
-		
+		}
+
 		mylist.sort();
 		mylist.reverse();
-		
-		SortedIP::IPTallyEntry * ppp;
 
 		// build strings
 		// write output of second stage
-		for (const auto& z : mylist)
+		for (auto& z : mylist)
 		{
-			ppp = z.xptr;
-			myfile << ppp->count;
+			int tally, f1, f2, f3, f4;
+			tally = f1 = f2 = f3 = f4 = 0;
+			int &tr = tally, &f1r = f1, &f2r = f2, &f3r = f3, &f4r = f4;
+
+			z.GetIPEntryData(tr, f1r, f2r, f3r, f4r);
+
+		
+			myfile << tally;
 			myfile << ", \"";
-			myfile << ppp->ip[0] << ".";
-			myfile << ppp->ip[1] << ".";
-			myfile << ppp->ip[2] << ".";
-			myfile << ppp->ip[3];
+			myfile << f1 << ".";
+			myfile << f2 << ".";
+			myfile << f3 << ".";
+			myfile << f4;
 			myfile << "\"";
 			myfile << endl;
 
 		}
 		mylist.clear();
 
-		for (const auto& zc : list4clean)
-			delete(zc);
-		list4clean.clear();
+
+////////////////////////////////////////////////////////////////////////////////////
+
 
 		myfile.close();
 		stream1.close();
